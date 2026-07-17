@@ -1,0 +1,58 @@
+class LFUCache {
+    int cap, minFreq;
+    unordered_map<int, pair<int, int>> valFreq;
+    unordered_map<int, list<int>> freqList;
+    unordered_map<int, list<int>::iterator> pos;
+
+public:
+    LFUCache(int capacity) {
+        cap = capacity;
+        minFreq = 0;
+    }
+
+    int get(int key) {
+        if (!valFreq.count(key))
+            return -1;
+
+        int val = valFreq[key].first;
+        int freq = valFreq[key].second;
+
+        freqList[freq].erase(pos[key]);
+        if (freqList[freq].empty()) {
+            freqList.erase(freq);
+            if (minFreq == freq)
+                minFreq++;
+        }
+
+        valFreq[key].second++;
+        freqList[freq + 1].push_front(key);
+        pos[key] = freqList[freq + 1].begin();
+
+        return val;
+    }
+
+    void put(int key, int value) {
+        if (cap == 0) return;
+
+        if (valFreq.count(key)) {
+            valFreq[key].first = value;
+            get(key);
+            return;
+        }
+
+        if (valFreq.size() == cap) {
+            int del = freqList[minFreq].back();
+            freqList[minFreq].pop_back();
+            if (freqList[minFreq].empty())
+                freqList.erase(minFreq);
+
+            valFreq.erase(del);
+            pos.erase(del);
+        }
+
+        valFreq[key] = {value, 1};
+        freqList[1].push_front(key);
+        pos[key] = freqList[1].begin();
+        minFreq = 1;
+    }
+};
