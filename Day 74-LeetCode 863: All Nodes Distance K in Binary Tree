@@ -1,0 +1,44 @@
+class Solution {
+public:
+    unordered_map<TreeNode*, TreeNode*> par;
+    
+    void dfs(TreeNode* root, TreeNode* p = nullptr) {
+        if (!root) return;
+        par[root] = p;
+        dfs(root->left, root);
+        dfs(root->right, root);
+    }
+
+    vector<int> distanceK(TreeNode* root, TreeNode* target, int k) {
+        dfs(root);
+
+        queue<TreeNode*> q;
+        unordered_set<TreeNode*> vis;
+        q.push(target);
+        vis.insert(target);
+
+        while (!q.empty() && k--) {
+            int n = q.size();
+
+            while (n--) {
+                TreeNode* x = q.front();
+                q.pop();
+
+                for (TreeNode* y : {x->left, x->right, par[x]}) {
+                    if (y && !vis.count(y)) {
+                        vis.insert(y);
+                        q.push(y);
+                    }
+                }
+            }
+        }
+
+        vector<int> ans;
+        while (!q.empty()) {
+            ans.push_back(q.front()->val);
+            q.pop();
+        }
+
+        return ans;
+    }
+};
