@@ -1,0 +1,26 @@
+class Solution {
+public:
+    unordered_map<int,int> pos;
+    int p;
+
+    TreeNode* build(vector<int>& in, vector<int>& post, int l, int r) {
+        if (l > r) return nullptr;
+
+        int x = post[p--];
+        TreeNode* root = new TreeNode(x);
+        int m = pos[x];
+
+        root->right = build(in, post, m + 1, r);
+        root->left = build(in, post, l, m - 1);
+
+        return root;
+    }
+
+    TreeNode* buildTree(vector<int>& inorder, vector<int>& postorder) {
+        for (int i = 0; i < inorder.size(); i++)
+            pos[inorder[i]] = i;
+
+        p = postorder.size() - 1;
+        return build(inorder, postorder, 0, inorder.size() - 1);
+    }
+};
