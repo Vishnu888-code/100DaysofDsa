@@ -1,0 +1,61 @@
+class Solution {
+public:
+    vector<vector<string>> ans;
+    unordered_map<string, vector<string>> parent;
+
+    void dfs(string word, string begin, vector<string>& path) {
+        if (word == begin) {
+            reverse(path.begin(), path.end());
+            ans.push_back(path);
+            reverse(path.begin(), path.end());
+            return;
+        }
+
+        for (auto &p : parent[word]) {
+            path.push_back(p);
+            dfs(p, begin, path);
+            path.pop_back();
+        }
+    }
+
+    vector<vector<string>> findLadders(string begin, string end,
+                                       vector<string>& words) {
+        unordered_set<string> st(words.begin(), words.end());
+        if (!st.count(end)) return {};
+
+        queue<string> q;
+        q.push(begin);
+        st.erase(begin);
+        bool found = false;
+
+        while (!q.empty() && !found) {
+            int sz = q.size();
+            unordered_set<string> used;
+
+            while (sz--) {
+                string w = q.front(); q.pop();
+
+                for (int i = 0; i < w.size(); i++) {
+                    string t = w;
+                    for (char c = 'a'; c <= 'z'; c++) {
+                        t[i] = c;
+                        if (st.count(t)) {
+                            parent[t].push_back(w);
+                            used.insert(t);
+                            if (t == end) found = true;
+                            q.push(t);
+                        }
+                    }
+                }
+            }
+
+            for (auto &x : used) st.erase(x);
+        }
+
+        if (!found) return {};
+
+        vector<string> path = {end};
+        dfs(end, begin, path);
+        return ans;
+    }
+};
