@@ -1,0 +1,42 @@
+class Solution {
+public:
+    int minimumEffortPath(vector<vector<int>>& h) {
+        int m = h.size(), n = h[0].size();
+
+        vector<vector<int>> d(m, vector<int>(n, 1e9));
+        priority_queue<
+            tuple<int,int,int>,
+            vector<tuple<int,int,int>>,
+            greater<tuple<int,int,int>>
+        > pq;
+
+        d[0][0] = 0;
+        pq.push({0, 0, 0});
+
+        int dr[] = {-1,1,0,0};
+        int dc[] = {0,0,-1,1};
+
+        while(!pq.empty()) {
+            auto [eff, r, c] = pq.top();
+            pq.pop();
+
+            if(r == m-1 && c == n-1) return eff;
+            if(eff > d[r][c]) continue;
+
+            for(int i = 0; i < 4; i++) {
+                int nr = r + dr[i], nc = c + dc[i];
+
+                if(nr >= 0 && nc >= 0 && nr < m && nc < n) {
+                    int ne = max(eff, abs(h[r][c] - h[nr][nc]));
+
+                    if(ne < d[nr][nc]) {
+                        d[nr][nc] = ne;
+                        pq.push({ne, nr, nc});
+                    }
+                }
+            }
+        }
+
+        return 0;
+    }
+};
